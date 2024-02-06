@@ -1,0 +1,80 @@
+[
+    {
+        "label": "BPF",
+        "importPath": "bcc",
+        "description": "bcc",
+        "isExtraImport": true,
+        "detail": "bcc",
+        "documentation": {}
+    },
+    {
+        "label": "BPF",
+        "importPath": "bcc",
+        "description": "bcc",
+        "isExtraImport": true,
+        "detail": "bcc",
+        "documentation": {}
+    },
+    {
+        "label": "sleep",
+        "importPath": "time",
+        "description": "time",
+        "isExtraImport": true,
+        "detail": "time",
+        "documentation": {}
+    },
+    {
+        "label": "program",
+        "kind": 5,
+        "importPath": "hello",
+        "description": "hello",
+        "peekOfCode": "program = r\"\"\"\nint hello(void *ctx) {\n    bpf_trace_printk(\"Hello World!\");\n    return 0;\n}\n\"\"\"\nb = BPF(text=program)\nsyscall = b.get_syscall_fnname(\"execve\")\nb.attach_kprobe(event=syscall, fn_name=\"hello\")\nb.trace_print()",
+        "detail": "hello",
+        "documentation": {}
+    },
+    {
+        "label": "b",
+        "kind": 5,
+        "importPath": "hello",
+        "description": "hello",
+        "peekOfCode": "b = BPF(text=program)\nsyscall = b.get_syscall_fnname(\"execve\")\nb.attach_kprobe(event=syscall, fn_name=\"hello\")\nb.trace_print()",
+        "detail": "hello",
+        "documentation": {}
+    },
+    {
+        "label": "syscall",
+        "kind": 5,
+        "importPath": "hello",
+        "description": "hello",
+        "peekOfCode": "syscall = b.get_syscall_fnname(\"execve\")\nb.attach_kprobe(event=syscall, fn_name=\"hello\")\nb.trace_print()",
+        "detail": "hello",
+        "documentation": {}
+    },
+    {
+        "label": "program",
+        "kind": 5,
+        "importPath": "hello_map",
+        "description": "hello_map",
+        "peekOfCode": "program = r\"\"\"\nBPF_HASH(counter_table);\nint hello(void *ctx) {\n   u64 uid;\n   u64 counter = 0;\n   u64 *p;\n   uid = bpf_get_current_uid_gid() & 0xFFFFFFFF;\n   p = counter_table.lookup(&uid);\n   if (p != 0) {\n      counter = *p;",
+        "detail": "hello_map",
+        "documentation": {}
+    },
+    {
+        "label": "b",
+        "kind": 5,
+        "importPath": "hello_map",
+        "description": "hello_map",
+        "peekOfCode": "b = BPF(text=program)\nsyscall = b.get_syscall_fnname(\"execve\")\nb.attach_kprobe(event=syscall, fn_name=\"hello\")\n# Attach to a tracepoint that gets hit for all syscalls \n# b.attach_raw_tracepoint(tp=\"sys_enter\", fn_name=\"hello\")\nwhile True:\n    sleep(2)\n    s = \"\"\n    for k,v in b[\"counter_table\"].items():\n        s += f\"ID {k.value}: {v.value}\\t\"",
+        "detail": "hello_map",
+        "documentation": {}
+    },
+    {
+        "label": "syscall",
+        "kind": 5,
+        "importPath": "hello_map",
+        "description": "hello_map",
+        "peekOfCode": "syscall = b.get_syscall_fnname(\"execve\")\nb.attach_kprobe(event=syscall, fn_name=\"hello\")\n# Attach to a tracepoint that gets hit for all syscalls \n# b.attach_raw_tracepoint(tp=\"sys_enter\", fn_name=\"hello\")\nwhile True:\n    sleep(2)\n    s = \"\"\n    for k,v in b[\"counter_table\"].items():\n        s += f\"ID {k.value}: {v.value}\\t\"\n    print(s)",
+        "detail": "hello_map",
+        "documentation": {}
+    }
+]
