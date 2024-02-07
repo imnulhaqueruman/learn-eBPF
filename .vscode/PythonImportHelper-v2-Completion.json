@@ -95,11 +95,20 @@
         "documentation": {}
     },
     {
-        "label": "program",
+        "label": "program_openat",
         "kind": 5,
         "importPath": "hello_map",
         "description": "hello_map",
-        "peekOfCode": "program = r\"\"\"\nBPF_HASH(counter_table);\nint hello(void *ctx) {\n   u64 uid;\n   u64 counter = 0;\n   u64 *p;\n   uid = bpf_get_current_uid_gid() & 0xFFFFFFFF;\n   p = counter_table.lookup(&uid);\n   if (p != 0) {\n      counter = *p;",
+        "peekOfCode": "program_openat = r\"\"\"\nBPF_HASH(counter_table_openat);\nint hello_openat(void *ctx) {\n    u64 uid;\n    u64 counter = 0;\n    u64 *p;\n    uid = bpf_get_current_uid_gid() & 0xFFFFFFFF;\n    p = counter_table_openat.lookup(&uid);\n    if (p != 0) {\n        counter = *p;",
+        "detail": "hello_map",
+        "documentation": {}
+    },
+    {
+        "label": "program_write",
+        "kind": 5,
+        "importPath": "hello_map",
+        "description": "hello_map",
+        "peekOfCode": "program_write = r\"\"\"\nBPF_HASH(counter_table_write);\nint hello_write(void *ctx) {\n    u64 uid;\n    u64 counter = 0;\n    u64 *p;\n    uid = bpf_get_current_uid_gid() & 0xFFFFFFFF;\n    p = counter_table_write.lookup(&uid);\n    if (p != 0) {\n        counter = *p;",
         "detail": "hello_map",
         "documentation": {}
     },
@@ -108,16 +117,25 @@
         "kind": 5,
         "importPath": "hello_map",
         "description": "hello_map",
-        "peekOfCode": "b = BPF(text=program)\nsyscall = b.get_syscall_fnname(\"execve\")\nb.attach_kprobe(event=syscall, fn_name=\"hello\")\n# Attach to a tracepoint that gets hit for all syscalls \n# b.attach_raw_tracepoint(tp=\"sys_enter\", fn_name=\"hello\")\nwhile True:\n    sleep(2)\n    s = \"\"\n    for k,v in b[\"counter_table\"].items():\n        s += f\"ID {k.value}: {v.value}\\t\"",
+        "peekOfCode": "b = BPF(text=program_openat + program_write)\nsyscall_openat = b.get_syscall_fnname(\"openat\")\nsyscall_write = b.get_syscall_fnname(\"write\")\nb.attach_kprobe(event=syscall_openat, fn_name=\"hello_openat\")\nb.attach_kprobe(event=syscall_write, fn_name=\"hello_write\")\nwhile True:\n    sleep(2)\n    s = \"\"\n    # Print openat counters\n    s += \"openat: \"",
         "detail": "hello_map",
         "documentation": {}
     },
     {
-        "label": "syscall",
+        "label": "syscall_openat",
         "kind": 5,
         "importPath": "hello_map",
         "description": "hello_map",
-        "peekOfCode": "syscall = b.get_syscall_fnname(\"execve\")\nb.attach_kprobe(event=syscall, fn_name=\"hello\")\n# Attach to a tracepoint that gets hit for all syscalls \n# b.attach_raw_tracepoint(tp=\"sys_enter\", fn_name=\"hello\")\nwhile True:\n    sleep(2)\n    s = \"\"\n    for k,v in b[\"counter_table\"].items():\n        s += f\"ID {k.value}: {v.value}\\t\"\n    print(s)",
+        "peekOfCode": "syscall_openat = b.get_syscall_fnname(\"openat\")\nsyscall_write = b.get_syscall_fnname(\"write\")\nb.attach_kprobe(event=syscall_openat, fn_name=\"hello_openat\")\nb.attach_kprobe(event=syscall_write, fn_name=\"hello_write\")\nwhile True:\n    sleep(2)\n    s = \"\"\n    # Print openat counters\n    s += \"openat: \"\n    for k, v in b[\"counter_table_openat\"].items():",
+        "detail": "hello_map",
+        "documentation": {}
+    },
+    {
+        "label": "syscall_write",
+        "kind": 5,
+        "importPath": "hello_map",
+        "description": "hello_map",
+        "peekOfCode": "syscall_write = b.get_syscall_fnname(\"write\")\nb.attach_kprobe(event=syscall_openat, fn_name=\"hello_openat\")\nb.attach_kprobe(event=syscall_write, fn_name=\"hello_write\")\nwhile True:\n    sleep(2)\n    s = \"\"\n    # Print openat counters\n    s += \"openat: \"\n    for k, v in b[\"counter_table_openat\"].items():\n        s += f\"ID {k.value}: {v.value}\\t\"",
         "detail": "hello_map",
         "documentation": {}
     }
