@@ -24,6 +24,22 @@
         "documentation": {}
     },
     {
+        "label": "BPF",
+        "importPath": "bcc",
+        "description": "bcc",
+        "isExtraImport": true,
+        "detail": "bcc",
+        "documentation": {}
+    },
+    {
+        "label": "sleep",
+        "importPath": "time",
+        "description": "time",
+        "isExtraImport": true,
+        "detail": "time",
+        "documentation": {}
+    },
+    {
         "label": "sleep",
         "importPath": "time",
         "description": "time",
@@ -137,6 +153,24 @@
         "description": "hello_map",
         "peekOfCode": "syscall_write = b.get_syscall_fnname(\"write\")\nb.attach_kprobe(event=syscall_openat, fn_name=\"hello_openat\")\nb.attach_kprobe(event=syscall_write, fn_name=\"hello_write\")\nwhile True:\n    sleep(2)\n    s = \"\"\n    # Print openat counters\n    s += \"openat: \"\n    for k, v in b[\"counter_table_openat\"].items():\n        s += f\"ID {k.value}: {v.value}\\t\"",
         "detail": "hello_map",
+        "documentation": {}
+    },
+    {
+        "label": "program",
+        "kind": 5,
+        "importPath": "hello_modify_map",
+        "description": "hello_modify_map",
+        "peekOfCode": "program = r\"\"\"\nBPF_HASH(counter_table);\nint hello(void *ctx) {\n    u64 uid;\n    u64 counter = 0;\n    u64 *p;\n    uid = bpf_get_current_uid_gid() & 0xFFFFFFFF;\n    p = counter_table.lookup(&uid);\n    if (p != 0) {\n        counter = *p;",
+        "detail": "hello_modify_map",
+        "documentation": {}
+    },
+    {
+        "label": "b",
+        "kind": 5,
+        "importPath": "hello_modify_map",
+        "description": "hello_modify_map",
+        "peekOfCode": "b = BPF(text=program)\nb.attach_raw_tracepoint(tp=\"sys_enter\", fn_name=\"hello\")\nwhile True:\n    sleep(2)\n    s = \"\"\n    # Print openat counters\n    for k, v in b[\"counter_table\"].items():\n        s += f\"ID {k.value}: {v.value}\\t\"\n    print(s)",
+        "detail": "hello_modify_map",
         "documentation": {}
     }
 ]
